@@ -1,2 +1,2 @@
 # alpheratz-database
-* A experimental project of database
+* An experimental project of database
