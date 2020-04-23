@@ -1,7 +1,5 @@
-import com.google.gson.JsonObject;
 import pl.alpheratzteam.database.DatabaseDriver;
 import pl.alpheratzteam.database.api.database.*;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -21,11 +19,19 @@ public final class DatabaseTest
                 collection.insert(insertObject());
                 collection.update(new KeyData("nickname", "abc123"), updateObject());
 
-                final Iterator<JsonObject> iterator = collection.find();
-                final AtomicInteger index = new AtomicInteger();
-                iterator.forEachRemaining(jsonObject -> System.out.println("Value at " + index.getAndIncrement() + " is: " + jsonObject.toString()));
+               // final List<Document> documents = collection.find();
+              //  final AtomicInteger index = new AtomicInteger();
+               // documents.forEach(document -> System.out.println("Value at " + index.getAndIncrement() + " is: " + document.getString("nickname")));
 
-                databaseClient.disconnect();
+                final long startTime = System.currentTimeMillis();
+                collection.findAsync().setFutureListener((documents) -> {
+                    DatabaseDriver.INSTANCE.getLogger().info("Found " + documents.size() + " documents in " + (System.currentTimeMillis() - startTime) + " ms.");
+
+                    final AtomicInteger index = new AtomicInteger();
+                    documents.forEach(document -> System.out.println("Value at " + index.getAndIncrement() + " is: " + document.getString("nickname")));
+                });
+
+               // databaseClient.disconnect();
             }
 
             @Override
@@ -35,15 +41,11 @@ public final class DatabaseTest
         });
     }
 
-    private static JsonObject insertObject() {
-        final JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("nickname", "abc123");
-        return jsonObject;
+    private static Document insertObject() {
+        return Document.parse("{\"nickname\":\"abc123\"}");
     }
 
-    private static JsonObject updateObject() {
-        final JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("nickname", "cba321");
-        return jsonObject;
+    private static Document updateObject() {
+        return Document.parse("{\"nickname\":\"cba321\"}");
     }
 }

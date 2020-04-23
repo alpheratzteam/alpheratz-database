@@ -69,11 +69,11 @@ public final class PacketBuffer extends ByteBuf
     public String readStringFromBuffer(final int maxLength) {
         final int i = this.readInt();
         if (i > maxLength * 4)
-            throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + i + " > " + maxLength * 4 + ")");
+            throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + i + " > " + (maxLength * 4) + ")");
         
         if (i < 0)
             throw new DecoderException("The received encoded string buffer length is less than zero! Weird string!");
-        
+
         final String s = this.toString(this.readerIndex(), i, StandardCharsets.UTF_8);
         this.readerIndex(this.readerIndex() + i);
 

@@ -7,7 +7,6 @@ import lombok.ToString;
 import pl.alpheratzteam.database.api.packet.CallbackPacket;
 import pl.alpheratzteam.database.api.packet.PacketBuffer;
 import pl.alpheratzteam.database.communication.packets.DatabasePacketHandler;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;

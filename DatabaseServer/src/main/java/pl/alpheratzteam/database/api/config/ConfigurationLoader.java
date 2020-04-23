@@ -1,7 +1,6 @@
 package pl.alpheratzteam.database.api.config;
 
 import com.google.gson.JsonObject;
-import pl.alpheratzteam.database.Bootstrap;
 import pl.alpheratzteam.database.DatabaseInitializer;
 import pl.alpheratzteam.database.utils.IOUtil;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ public final class ConfigurationLoader
     public void checkConfigurationFiles(final String... files) {
         Arrays.stream(files).forEach(fileName -> databaseInitializer.safeExecute(() -> {
             final File file = new File(databaseInitializer.getBaseFolder(), fileName + ".json");
-            final InputStream inputStream = Bootstrap.class.getResourceAsStream(fileName + ".json");
+            final InputStream inputStream = new FileInputStream("F:\\IdeaProjects\\alpheratz-database\\DatabaseServer\\src\\main\\resources\\" + fileName + ".json");// Bootstrap.class.getResourceAsStream(fileName + ".json");
             Objects.requireNonNull(inputStream, "InputStream cannot be null!");
 
             if (!file.exists())

@@ -5,7 +5,10 @@ import pl.alpheratzteam.database.DatabaseDriver;
 import pl.alpheratzteam.database.api.database.Collection;
 import pl.alpheratzteam.database.api.database.Database;
 import pl.alpheratzteam.database.api.database.DatabaseClient;
+import pl.alpheratzteam.database.api.database.Document;
 import pl.alpheratzteam.database.communication.packets.server.ServerRecordsResponsePacket;
+
+import java.util.stream.Collectors;
 
 /**
  * @author hp888 on 19.04.2020.
@@ -22,9 +25,9 @@ public final class DatabasePacketHandler
         if (!collection.getFindCache().containsKey(packet.getCallbackId()))
             return;
 
-        collection.getFindCache().get(packet.getCallbackId()).complete(packet.getRecords().stream()
-                .map(record -> DatabaseDriver.INSTANCE.getJsonParser().parse(record).getAsJsonObject())
-                .iterator()
+        collection.getFindCache().remove(packet.getCallbackId()).complete(packet.getRecords().stream()
+                .map(Document::parse)
+                .collect(Collectors.toList())
         );
     }
 }
