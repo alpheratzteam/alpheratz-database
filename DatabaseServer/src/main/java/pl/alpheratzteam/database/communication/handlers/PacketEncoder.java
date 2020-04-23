@@ -18,14 +18,12 @@ import pl.alpheratzteam.database.api.packet.PacketDirection;
 @RequiredArgsConstructor
 public final class PacketEncoder extends MessageToByteEncoder<Packet>
 {
-    private static final DatabaseInitializer databaseInitializer = DatabaseInitializer.INSTANCE;
-
     private final PacketDirection packetDirection;
 
     @Override
     protected void encode(ChannelHandlerContext channelHandlerContext, Packet packet, ByteBuf byteBuf) {
         final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
-        final int packetId = databaseInitializer.getPacketRegistry()
+        final int packetId = DatabaseInitializer.INSTANCE.getPacketRegistry()
                 .getPacketId(packetDirection, packet.getClass());
 
         if (packetId == -1)

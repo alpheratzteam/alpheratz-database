@@ -20,15 +20,13 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public final class PacketDecoder extends ByteToMessageDecoder
 {
-    private static final DatabaseInitializer databaseInitializer = DatabaseInitializer.INSTANCE;
-
     private final PacketDirection packetDirection;
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
         final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
         final int packetId = packetBuffer.readInt();
-        final Packet packet = databaseInitializer.getPacketRegistry()
+        final Packet packet = DatabaseInitializer.INSTANCE.getPacketRegistry()
                 .newInstance(packetDirection, packetId);
 
         if (Objects.isNull(packet))

@@ -9,14 +9,12 @@ import java.util.List;
 
 public final class SearchUtil
 {
-    private static final DatabaseInitializer databaseInitializer = DatabaseInitializer.INSTANCE;
-
     private SearchUtil() {}
 
     public static int getPosition(final Collection collection, final KeyData keyData) {
         try {
             final String[] strings = collection.getRecords().stream()
-                    .map(record -> databaseInitializer.getJsonParser().parse(record).getAsJsonObject()
+                    .map(record -> DatabaseInitializer.INSTANCE.getJsonParser().parse(record).getAsJsonObject()
                             .get(keyData.getKey()).getAsString()
                     )
                     .toArray(String[]::new);
@@ -33,7 +31,7 @@ public final class SearchUtil
             final List<String> records = collection.getRecords();
             final long time = System.currentTimeMillis();
             final String[] strings = records.stream()
-                    .map(record -> databaseInitializer.getJsonParser().parse(record).getAsJsonObject()
+                    .map(record -> DatabaseInitializer.INSTANCE.getJsonParser().parse(record).getAsJsonObject()
                             .get(keyData.getKey()).getAsString()
                     )
                     .toArray(String[]::new);
