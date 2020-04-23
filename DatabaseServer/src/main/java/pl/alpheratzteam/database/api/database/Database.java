@@ -1,7 +1,7 @@
-package pl.alpheratzteam.database.objects;
+package pl.alpheratzteam.database.api.database;
 
 import lombok.Data;
-import pl.alpheratzteam.database.api.database.DatabaseWriter;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;

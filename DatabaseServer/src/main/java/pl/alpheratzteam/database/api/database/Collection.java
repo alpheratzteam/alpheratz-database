@@ -1,4 +1,4 @@
-package pl.alpheratzteam.database.objects;
+package pl.alpheratzteam.database.api.database;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

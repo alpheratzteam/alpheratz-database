@@ -1,7 +1,5 @@
 package pl.alpheratzteam.database.api.database;
 
-import pl.alpheratzteam.database.objects.Collection;
-import pl.alpheratzteam.database.objects.Database;
 import pl.alpheratzteam.database.utils.IOUtil;
 
 import java.util.stream.Collectors;
@@ -22,7 +20,7 @@ public enum DatabaseReader
         if (!file.exists())
             return;
 
-        final DataInputStream dataInputStream = this.decode(file);
+        final DataInputStream dataInputStream = this.decompress(file);
         final int nCollections = dataInputStream.readShort();
         final Collection[] collections = new Collection[nCollections];
         this.loadCollections(dataInputStream, collections);
@@ -35,7 +33,7 @@ public enum DatabaseReader
                 .collect(Collectors.toMap(Collection::getName, collection -> collection));
     }
 
-    private DataInputStream decode(final File file) throws IOException {
+    private DataInputStream decompress(final File file) throws IOException {
         return new DataInputStream(new ByteArrayInputStream(IOUtil.toByteArray(new InflaterInputStream(new FileInputStream(file), new Inflater()))));
     }
 

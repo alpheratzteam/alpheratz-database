@@ -1,30 +1,32 @@
-package pl.alpheratzteam.database.objects;
+package pl.alpheratzteam.database.api.database;
 
-import pl.alpheratzteam.database.communication.packets.DatabasePacketHandler;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import pl.alpheratzteam.database.api.packet.Packet;
-import java.util.Objects;
 import lombok.Data;
+import pl.alpheratzteam.database.api.packet.Packet;
+import pl.alpheratzteam.database.communication.packets.DatabasePacketHandler;
+
+import java.util.Objects;
 
 /**
- * @author hp888 on 19.04.2020.
+ * @author hp888 on 23.04.2020.
  */
 
 @Data
 public final class DatabaseClient
 {
+    private final DatabaseData data;
     private final DatabasePacketHandler packetHandler;
 
-    public DatabaseClient() {
+    public DatabaseClient(final DatabaseData databaseData) {
+        data = databaseData;
         packetHandler = new DatabasePacketHandler(this);
     }
 
-    private boolean authenticated;
     private Channel channel;
 
     public void disconnect() {
-        if (Objects.isNull(channel))
+        if (Objects.isNull(channel) || !channel.isOpen())
             return;
 
         channel.close();
@@ -32,7 +34,7 @@ public final class DatabaseClient
     }
 
     public void sendPacket(final Packet packet) {
-        if (Objects.isNull(channel))
+        if (Objects.isNull(channel) || !channel.isOpen())
             return;
 
         channel.writeAndFlush(packet)

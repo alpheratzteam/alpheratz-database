@@ -2,7 +2,7 @@ package pl.alpheratzteam.database.tasks;
 
 import lombok.RequiredArgsConstructor;
 import pl.alpheratzteam.database.DatabaseInitializer;
-import pl.alpheratzteam.database.objects.Database;
+import pl.alpheratzteam.database.api.database.Database;
 import java.util.logging.Level;
 import java.io.IOException;
 
@@ -17,7 +17,7 @@ public final class DatabaseUpdateTask implements Runnable
 
     @Override
     public void run() {
-        databaseInitializer.getDatabaseManager().getDatabases()
+        databaseInitializer.getDatabaseRegistry().getDatabases()
                 .stream()
                 .filter(Database::isNeedUpdate)
                 .forEach(database -> {

@@ -2,6 +2,7 @@ package pl.alpheratzteam.database.api.packet;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;

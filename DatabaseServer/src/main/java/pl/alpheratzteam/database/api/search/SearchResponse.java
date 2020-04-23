@@ -6,5 +6,6 @@ import lombok.Data;
 public final class SearchResponse
 {
     private final String value;
+    private final int index;
     private final long time;
 }

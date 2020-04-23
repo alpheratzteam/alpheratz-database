@@ -1,7 +1,6 @@
-package pl.alpheratzteam.database.objects;
+package pl.alpheratzteam.database.api.database;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -9,16 +8,15 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.timeout.ReadTimeoutHandler;
 import lombok.Getter;
 import lombok.Setter;
 import pl.alpheratzteam.database.DatabaseInitializer;
-import pl.alpheratzteam.database.api.database.DatabaseData;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
 import pl.alpheratzteam.database.communication.handlers.ClientHandler;
-import pl.alpheratzteam.database.communication.handlers.packet.PacketDecoder;
-import pl.alpheratzteam.database.communication.handlers.packet.PacketEncoder;
+import pl.alpheratzteam.database.communication.handlers.PacketDecoder;
+import pl.alpheratzteam.database.communication.handlers.PacketEncoder;
 
 /**
  * @author hp888 on 18.04.2020.
@@ -46,15 +44,17 @@ public final class DatabaseServer
                 : NioServerSocketChannel.class
         );
 
-        serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true);
-        serverBootstrap.childHandler(new ChannelInitializer<Channel>() {
+        serverBootstrap.childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
+
+        serverBootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected void initChannel(Channel channel) {
+            protected void initChannel(SocketChannel channel) {
                 channel.pipeline()
-                        .addLast("timeout", new ReadTimeoutHandler(15))
-                        .addLast("packet-encoder", new PacketEncoder(PacketDirection.TO_CLIENT))
+                     //   .addLast("timeout", new ReadTimeoutHandler(15))
                         .addLast("packet-decoder", new PacketDecoder(PacketDirection.TO_SERVER))
-                        .addLast("handler", new ClientHandler());
+                        .addLast("packet-encoder", new PacketEncoder(PacketDirection.TO_CLIENT))
+                        .addLast("handler", new ClientHandler(channel));
             }
         });
 
@@ -64,7 +64,7 @@ public final class DatabaseServer
                     if (!future.isSuccess())
                         return;
 
-                    DatabaseInitializer.getInstance().getLogger().info("Server bound on " + data.getHost() + ":" + data.getPort());
+                    DatabaseInitializer.INSTANCE.getLogger().info("Server bound on " + data.getHost() + ":" + data.getPort());
                 });
     }
 }

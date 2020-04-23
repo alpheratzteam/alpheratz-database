@@ -1,8 +1,5 @@
 package pl.alpheratzteam.database.api.database;
 
-import pl.alpheratzteam.database.objects.Collection;
-import pl.alpheratzteam.database.objects.Database;
-
 import java.util.zip.DeflaterOutputStream;
 import java.io.*;
 
@@ -15,7 +12,7 @@ public enum DatabaseWriter
     INSTANCE;
 
     public void write(final Database database) throws IOException {
-        final File databaseFile = new File("databases", database.getName() + ".adb");
+        final File databaseFile = new File("Alpheratz-Database" + File.separator + "databases", database.getName() + ".adb");
         databaseFile.getParentFile().mkdirs();
 
         if (databaseFile.exists())
@@ -28,8 +25,6 @@ public enum DatabaseWriter
         final DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(new FileOutputStream(databaseFile));
         deflaterOutputStream.write(byteArrayOutputStream.toByteArray());
         deflaterOutputStream.close();
-
-        System.out.println("Saved " + database.getCollections().size() + " collections!");
     }
 
     private void saveCollections(final DataOutputStream dataOutputStream, final Database database) throws IOException {

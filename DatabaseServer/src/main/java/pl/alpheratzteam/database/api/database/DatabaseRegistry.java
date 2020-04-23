@@ -1,4 +1,4 @@
-package pl.alpheratzteam.database.managers;
+package pl.alpheratzteam.database.api.database;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,20 +7,20 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import pl.alpheratzteam.database.DatabaseInitializer;
-import pl.alpheratzteam.database.api.database.DatabaseReader;
-import pl.alpheratzteam.database.objects.Database;
+
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author hp888 on 20.04.2020.
  */
 
-public final class DatabaseManager
+public final class DatabaseRegistry
 {
     private final Map<String, Database> databases;
 
-    public DatabaseManager() {
+    public DatabaseRegistry() {
         databases = new ConcurrentHashMap<>();
         loadAll();
     }
@@ -38,7 +38,7 @@ public final class DatabaseManager
         if (Objects.isNull(database))
             return;
 
-        final File file = new File("databases", database.getName() + ".adb");
+        final File file = new File("Alpheratz-Database" + File.separator + "databases", database.getName() + ".adb");
         if (!file.exists())
             return;
 
@@ -46,7 +46,7 @@ public final class DatabaseManager
     }
 
     private void loadAll() {
-        final File databasesFolder = new File("databases");
+        final File databasesFolder = new File("Alpheratz-Database" + File.separator + "databases");
         if (!databasesFolder.exists() || Objects.isNull(databasesFolder.listFiles()))
             return;
 
@@ -55,12 +55,13 @@ public final class DatabaseManager
                     try {
                         final Database database = new Database(file.getName().replace(".adb", ""));
                         DatabaseReader.INSTANCE.read(database, file);
+
                         databases.put(database.getName(), database);
                     } catch (final IOException ex) {
-                        DatabaseInitializer.getInstance().getLogger().log(Level.SEVERE, "Exception thrown when loading databases...", ex);
+                        DatabaseInitializer.INSTANCE.getLogger().log(Level.SEVERE, "Exception thrown when loading databases...", ex);
                     }
                 });
 
-        DatabaseInitializer.getInstance().getLogger().info("Loaded " + databases.size() + " databases.");
+        Logger.getLogger("Alpheratz-Database").info("Loaded " + databases.size() + " databases.");
     }
 }

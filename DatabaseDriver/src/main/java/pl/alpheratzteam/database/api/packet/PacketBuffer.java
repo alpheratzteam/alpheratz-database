@@ -6,6 +6,7 @@ import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.ByteProcessor;
 import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +47,7 @@ public final class PacketBuffer extends ByteBuf
         this.readBytes(bytes);
         return bytes;
     }
-
+    
     public <T extends Enum<T>> T readEnumValue(final Class<T> enumClass) {
         return enumClass.getEnumConstants()[this.readInt()];
     }
@@ -70,16 +71,16 @@ public final class PacketBuffer extends ByteBuf
         final int i = this.readInt();
         if (i > maxLength * 4)
             throw new DecoderException("The received encoded string buffer length is longer than maximum allowed (" + i + " > " + maxLength * 4 + ")");
-
+        
         if (i < 0)
             throw new DecoderException("The received encoded string buffer length is less than zero! Weird string!");
-
+        
         final String s = this.toString(this.readerIndex(), i, StandardCharsets.UTF_8);
         this.readerIndex(this.readerIndex() + i);
 
         if (s.length() > maxLength)
             throw new DecoderException("The received string length is longer than maximum allowed (" + i + " > " + maxLength + ")");
-
+            
         return s;
     }
 
@@ -87,7 +88,7 @@ public final class PacketBuffer extends ByteBuf
         final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
         if (bytes.length > Short.MAX_VALUE)
             throw new EncoderException("String too big (was " + bytes.length + " bytes encoded, max " + Short.MAX_VALUE + ")");
-
+       
         this.writeInt(bytes.length);
         this.writeBytes(bytes);
         return this;

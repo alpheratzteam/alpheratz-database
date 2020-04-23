@@ -1,6 +1,6 @@
 package pl.alpheratzteam.database.api.database;
 
-import lombok.*;
+import lombok.Data;
 
 /**
  * @author hp888 on 18.04.2020.

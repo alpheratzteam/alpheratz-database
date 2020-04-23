@@ -1,32 +1,33 @@
 package pl.alpheratzteam.database;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonParser;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.Getter;
 import pl.alpheratzteam.database.api.database.ConnectCallback;
+import pl.alpheratzteam.database.api.database.DatabaseClient;
+import pl.alpheratzteam.database.api.database.DatabaseRegistry;
 import pl.alpheratzteam.database.api.initialize.Initializer;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
 import pl.alpheratzteam.database.api.packet.PacketRegistry;
+import pl.alpheratzteam.database.api.scheduler.Scheduler;
 import pl.alpheratzteam.database.communication.handlers.ClientHandler;
-import pl.alpheratzteam.database.communication.handlers.packet.PacketDecoder;
-import pl.alpheratzteam.database.communication.handlers.packet.PacketEncoder;
+import pl.alpheratzteam.database.communication.handlers.PacketDecoder;
+import pl.alpheratzteam.database.communication.handlers.PacketEncoder;
 import pl.alpheratzteam.database.initialize.PacketInitializer;
-import pl.alpheratzteam.database.objects.DatabaseClient;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import pl.alpheratzteam.database.scheduler.DatabaseScheduler;
 import java.util.logging.Logger;
 
 /**
- * @author hp888 on 19.04.2020.
+ * @author hp888 on 23.04.2020.
  */
 
 @Getter
@@ -34,19 +35,18 @@ public enum DatabaseDriver
 {
     INSTANCE;
 
-    private final ExecutorService executorService;
-    private final EventLoopGroup eventExecutors;
+    private final DatabaseRegistry databaseRegistry;
     private final PacketRegistry packetRegistry;
+    private final JsonParser jsonParser;
+    private final Scheduler scheduler;
     private final Logger logger;
 
     DatabaseDriver() {
-        executorService = Executors.newSingleThreadExecutor();
-        logger = Logger.getLogger("Database");
+        logger = Logger.getLogger("AlpheratzDatabase");
+        databaseRegistry = new DatabaseRegistry();
         packetRegistry = new PacketRegistry();
-
-        eventExecutors = (Epoll.isAvailable())
-                ? new EpollEventLoopGroup()
-                : new NioEventLoopGroup();
+        scheduler = new DatabaseScheduler();
+        jsonParser = new JsonParser();
 
         initialize(ImmutableSet.<Initializer>builder()
                 .add(new PacketInitializer())
@@ -59,27 +59,25 @@ public enum DatabaseDriver
     }
 
     public void connect(final DatabaseClient client, final ConnectCallback callback) {
-        executorService.submit(() -> {
-            final Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(eventExecutors);
-            bootstrap.channel((eventExecutors instanceof EpollEventLoopGroup)
-                    ? EpollSocketChannel.class
-                    : NioSocketChannel.class
-            );
+        final Bootstrap bootstrap = new Bootstrap();
+        bootstrap.group((Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup()));
+        bootstrap.channel((Epoll.isAvailable())
+                ? EpollSocketChannel.class
+                : NioSocketChannel.class
+        );
 
-            bootstrap.handler(new ChannelInitializer<Channel>() {
-                @Override
-                protected void initChannel(Channel channel) throws Exception {
-                    channel.pipeline()
-                            .addLast("packet-encoder", new PacketEncoder(PacketDirection.TO_SERVER))
-                            .addLast("packet-decoder", new PacketDecoder(PacketDirection.TO_CLIENT))
-                            .addLast("handler", new ClientHandler(callback, client));
-                }
-            });
-
-            bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
-            bootstrap.connect(client.getData().getHost(), client.getData().getPort())
-                    .syncUninterruptibly();
+        bootstrap.handler(new ChannelInitializer<SocketChannel>() {
+            @Override
+            protected void initChannel(SocketChannel channel) {
+                channel.pipeline()
+                        .addLast("packet-encoder", new PacketEncoder(PacketDirection.TO_SERVER))
+                        .addLast("packet-decoder", new PacketDecoder(PacketDirection.TO_CLIENT))
+                        .addLast("handler", new ClientHandler(callback, client));
+            }
         });
+
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+        bootstrap.connect(client.getData().getHost(), client.getData().getPort())
+                .syncUninterruptibly();
     }
 }

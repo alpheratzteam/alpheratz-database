@@ -3,7 +3,6 @@ package pl.alpheratzteam.database.initialize;
 import pl.alpheratzteam.database.DatabaseInitializer;
 import pl.alpheratzteam.database.api.initialize.Initializer;
 import pl.alpheratzteam.database.tasks.DatabaseUpdateTask;
-
 import java.util.concurrent.TimeUnit;
 
 /**
