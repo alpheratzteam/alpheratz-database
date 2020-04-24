@@ -7,7 +7,6 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import lombok.RequiredArgsConstructor;
 import pl.alpheratzteam.database.DatabaseInitializer;
 import pl.alpheratzteam.database.api.packet.CallbackPacket;
-import pl.alpheratzteam.database.api.packet.Packet;
 import pl.alpheratzteam.database.api.packet.PacketBuffer;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
 
@@ -16,27 +15,20 @@ import pl.alpheratzteam.database.api.packet.PacketDirection;
  */
 
 @RequiredArgsConstructor
-public final class PacketEncoder extends MessageToByteEncoder<Packet>
+public final class PacketEncoder extends MessageToByteEncoder<CallbackPacket>
 {
     private final PacketDirection packetDirection;
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, Packet packet, ByteBuf byteBuf) {
+    protected void encode(ChannelHandlerContext channelHandlerContext, CallbackPacket packet, ByteBuf byteBuf) {
         final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
         final int packetId = DatabaseInitializer.INSTANCE.getPacketRegistry()
                 .getPacketId(packetDirection, packet.getClass());
 
         if (packetId == -1)
-            throw new EncoderException("Cannot encode unregistered packet! (name=" + packet.getClass().getSimpleName() + ")");
+            throw new EncoderException("Cannot encode unregistered packet! (" + packet.getClass().getSimpleName() + ")");
 
-        packetBuffer.writeInt(packetId);
+        packetBuffer.writeVarIntToBuffer(packetId);
         packet.write(packetBuffer);
-
-        if (!(packet instanceof CallbackPacket))
-            return;
-
-        final CallbackPacket callbackPacket = (CallbackPacket) packet;
-        packetBuffer.writeLong(callbackPacket.getCallbackId());
-        packetBuffer.writeBoolean(callbackPacket.isResponse());
     }
 }

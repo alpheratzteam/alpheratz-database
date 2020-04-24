@@ -1,15 +1,16 @@
 package pl.alpheratzteam.database.communication.handlers;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.DecoderException;
 import lombok.RequiredArgsConstructor;
 import pl.alpheratzteam.database.DatabaseInitializer;
-import pl.alpheratzteam.database.api.packet.CallbackPacket;
 import pl.alpheratzteam.database.api.packet.Packet;
 import pl.alpheratzteam.database.api.packet.PacketBuffer;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -24,20 +25,21 @@ public final class PacketDecoder extends ByteToMessageDecoder
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
-        final int packetId = packetBuffer.readInt();
-        final Packet packet = DatabaseInitializer.INSTANCE.getPacketRegistry()
-                .newInstance(packetDirection, packetId);
+        final byte[] bytes = new byte[byteBuf.readableBytes()];
+        byteBuf.readBytes(bytes);
 
-        if (Objects.isNull(packet))
-            throw new DecoderException("Received invalid packet! (id=" + packetId + ")");
+        final PacketBuffer packetBuffer = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
+        final int packetId = packetBuffer.readVarIntFromBuffer();
+
+        final Packet packet = DatabaseInitializer.INSTANCE.getPacketRegistry().newInstance(packetDirection, packetId);
+        if (packet == null)
+            throw new DecoderException("Cannot decode unregistered packet! (" + packetId + ")");
 
         packet.read(packetBuffer);
 
-        if (packet instanceof CallbackPacket) {
-            final CallbackPacket callbackPacket = (CallbackPacket) packet;
-            callbackPacket.setCallbackId(packetBuffer.readLong());
-            callbackPacket.setResponse(packetBuffer.readBoolean());
+        if (byteBuf.readableBytes() > 0) {
+            DatabaseInitializer.INSTANCE.getLogger().severe("Packet \"" + packet.getClass().getSimpleName() + "\" was larger than I expected!");
+            byteBuf.skipBytes(byteBuf.readableBytes());
         }
 
         list.add(packet);
