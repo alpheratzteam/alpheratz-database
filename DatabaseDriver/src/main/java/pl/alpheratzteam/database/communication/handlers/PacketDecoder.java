@@ -24,31 +24,25 @@ public final class PacketDecoder extends ByteToMessageDecoder
     private final PacketDirection packetDirection;
 
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        final byte[] bytes = new byte[byteBuf.readableBytes()];
-        byteBuf.readBytes(bytes);
-
-        final PacketBuffer packetBuffer = new PacketBuffer(Unpooled.wrappedBuffer(bytes));
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) {
+        final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
         final int packetId = packetBuffer.readVarIntFromBuffer();
-
         final Packet packet = DatabaseDriver.INSTANCE.getPacketRegistry()
                 .newInstance(packetDirection, packetId);
 
-        if (packet == null)
+        if (Objects.isNull(packet))
             throw new DecoderException("Cannot decode unregistered packet! (" + packetId + ")");
 
         packet.read(packetBuffer);
 
-        if (byteBuf.readableBytes() > 0) {
-            DatabaseDriver.INSTANCE.getLogger().severe("Packet \"" + packet.getClass().getSimpleName() + "\" was larger than I expected!");
-            byteBuf.skipBytes(byteBuf.readableBytes());
-        }
-
-        if (packetBuffer.isReadable()) {
+        if (packet instanceof CallbackPacket && packetBuffer.isReadable()) {
             final CallbackPacket callbackPacket = (CallbackPacket) packet;
             callbackPacket.setCallbackId(packetBuffer.readLong());
             callbackPacket.setResponse(packetBuffer.readBoolean());
         }
+
+        if (packetBuffer.isReadable())
+            throw new DecoderException("Packet \"" + packet.getClass().getSimpleName() + "\" was larger than I expected!");
 
         list.add(packet);
     }

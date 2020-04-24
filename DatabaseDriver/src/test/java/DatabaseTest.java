@@ -17,7 +17,7 @@ public final class DatabaseTest
 
                 final Database database = DatabaseDriver.INSTANCE.getDatabaseRegistry().getDatabase(databaseClient, "alpheratz");
                 final Collection collection = database.getCollection("test");
-                IntStream.range(0, 999).forEachOrdered(i -> collection.insert(insertObject()));
+                IntStream.range(0, 10000).forEachOrdered(i -> collection.insert(insertObject()));
 //                collection.insert(insertObject());
 //                collection.update(new KeyData("nickname", "abc123"), updateObject());
 

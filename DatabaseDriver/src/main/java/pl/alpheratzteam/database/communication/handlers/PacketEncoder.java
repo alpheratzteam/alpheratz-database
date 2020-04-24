@@ -24,7 +24,6 @@ public final class PacketEncoder extends MessageToByteEncoder<Packet>
     protected void encode(ChannelHandlerContext channelHandlerContext, Packet packet, ByteBuf byteBuf) {
         final PacketBuffer packetBuffer = new PacketBuffer(byteBuf);
         final int packetId = DatabaseDriver.INSTANCE.getPacketRegistry().getPacketId(packetDirection, packet.getClass());
-
         if (packetId == -1)
             throw new EncoderException("Cannot encode unregistered packet! (" + packet.getClass().getSimpleName() + ")");
 
