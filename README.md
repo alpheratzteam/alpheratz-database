@@ -43,4 +43,5 @@ collection.update(new KeyData("nickname", "abc123"), Document.parse("{\"nickname
 ```java
  collection.findAsync(new KeyData("nickname", "cba321")).setFutureListener((document) -> {
                     System.out.println("found: " + (Objects.nonNull(document) ? document.toString() : "null"));
-                });```
+                });
+```
