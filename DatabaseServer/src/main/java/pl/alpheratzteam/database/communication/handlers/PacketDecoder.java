@@ -11,6 +11,7 @@ import pl.alpheratzteam.database.api.packet.Packet;
 import pl.alpheratzteam.database.api.packet.PacketBuffer;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author hp888 on 20.04.2020.
@@ -28,7 +29,7 @@ public final class PacketDecoder extends ByteToMessageDecoder
         final Packet packet = DatabaseInitializer.INSTANCE.getPacketRegistry()
                 .newInstance(packetDirection, packetId);
 
-        if (packet == null)
+        if (Objects.isNull(packet))
             throw new DecoderException("Cannot decode unregistered packet! (" + packetId + ")");
 
         packet.read(packetBuffer);

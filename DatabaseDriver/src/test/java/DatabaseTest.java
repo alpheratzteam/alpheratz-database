@@ -1,5 +1,7 @@
 import pl.alpheratzteam.database.DatabaseDriver;
 import pl.alpheratzteam.database.api.database.*;
+
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -17,7 +19,7 @@ public final class DatabaseTest
 
                 final Database database = DatabaseDriver.INSTANCE.getDatabaseRegistry().getDatabase(databaseClient, "alpheratz");
                 final Collection collection = database.getCollection("test");
-                IntStream.range(0, 10000).forEachOrdered(i -> collection.insert(insertObject()));
+               //IntStream.range(0, 10000).forEachOrdered(i -> collection.insert(insertObject()));
 //                collection.insert(insertObject());
 //                collection.update(new KeyData("nickname", "abc123"), updateObject());
 
@@ -30,8 +32,13 @@ public final class DatabaseTest
                     DatabaseDriver.INSTANCE.getLogger().info("Found " + documents.size() + " documents in " + (System.currentTimeMillis() - startTime) + " ms.");
 
                     final AtomicInteger index = new AtomicInteger();
-                    documents.forEach(document -> System.out.println("Value at " + index.getAndIncrement() + " is: " + document.getString("nickname")));
+                  // documents.forEach(document -> System.out.println("Value at " + index.getAndIncrement() + " is: " + document.getString("nickname")));
                 });
+
+                collection.findAsync(new KeyData("nickname", "cba321")).setFutureListener((document) -> {
+                    System.out.println("found: " + (Objects.nonNull(document) ? document.toString() : "null"));
+                });
+
 
                // databaseClient.disconnect();
             }

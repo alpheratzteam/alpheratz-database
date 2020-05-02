@@ -51,16 +51,14 @@ public final class Document implements Map<String, Object>, Serializable
     }
 
     public boolean getBoolean(final String key) {
-        return (boolean) map.get(key);
+        if (!map.containsKey(key))
+            return false;
+
+        final JsonElement jsonElement = (JsonElement) map.get(key);
+        return (jsonElement.isJsonPrimitive() && jsonElement.getAsJsonPrimitive().isBoolean())
+                && jsonElement.getAsJsonPrimitive().getAsBoolean();
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T get(final String key, final T defaultValue) {
-        final Object value = map.get(key);
-        return Objects.isNull(value)
-                ? defaultValue
-                : (T) value;
-    }
 
     @Override
     public Set<Entry<String, Object>> entrySet() {

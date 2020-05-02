@@ -6,6 +6,7 @@ import pl.alpheratzteam.database.api.database.Collection;
 import pl.alpheratzteam.database.api.database.Database;
 import pl.alpheratzteam.database.api.database.DatabaseClient;
 import pl.alpheratzteam.database.api.database.Document;
+import pl.alpheratzteam.database.communication.packets.server.ServerRecordResponsePacket;
 import pl.alpheratzteam.database.communication.packets.server.ServerRecordsResponsePacket;
 
 import java.util.stream.Collectors;
@@ -19,13 +20,23 @@ public final class DatabasePacketHandler
 {
     private final DatabaseClient client;
 
+    public void handlePacket(final ServerRecordResponsePacket packet) {
+        final Database database = DatabaseDriver.INSTANCE.getDatabaseRegistry().getDatabase(client, packet.getDatabaseName());
+        final Collection collection = database.getCollection(packet.getCollectionName());
+        if (!collection.getFindObjectCache().containsKey(packet.getCallbackId()))
+            return;
+
+        collection.getFindObjectCache().remove(packet.getCallbackId())
+                .complete(Document.parse(packet.getRecord()));
+    }
+
     public void handlePacket(final ServerRecordsResponsePacket packet) {
         final Database database = DatabaseDriver.INSTANCE.getDatabaseRegistry().getDatabase(client, packet.getDatabaseName());
         final Collection collection = database.getCollection(packet.getCollectionName());
-        if (!collection.getFindCache().containsKey(packet.getCallbackId()))
+        if (!collection.getFindListCache().containsKey(packet.getCallbackId()))
             return;
 
-        collection.getFindCache().remove(packet.getCallbackId()).complete(packet.getRecords().stream()
+        collection.getFindListCache().remove(packet.getCallbackId()).complete(packet.getRecords().stream()
                 .map(Document::parse)
                 .collect(Collectors.toList())
         );

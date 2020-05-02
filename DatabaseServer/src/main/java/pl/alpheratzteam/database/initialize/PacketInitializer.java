@@ -3,10 +3,8 @@ package pl.alpheratzteam.database.initialize;
 import pl.alpheratzteam.database.DatabaseInitializer;
 import pl.alpheratzteam.database.api.initialize.Initializer;
 import pl.alpheratzteam.database.api.packet.PacketDirection;
-import pl.alpheratzteam.database.communication.packets.client.ClientAuthenticationPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientInsertObjectPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientRecordsRequestPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientUpdateObjectPacket;
+import pl.alpheratzteam.database.communication.packets.client.*;
+import pl.alpheratzteam.database.communication.packets.server.ServerRecordResponsePacket;
 import pl.alpheratzteam.database.communication.packets.server.ServerRecordsResponsePacket;
 
 /**
@@ -21,7 +19,9 @@ public final class PacketInitializer implements Initializer
         databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x01, ClientInsertObjectPacket.class);
         databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x02, ClientUpdateObjectPacket.class);
         databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x03, ClientRecordsRequestPacket.class);
+        databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x04, ClientRecordRequestPacket.class);
 
         databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_CLIENT, 0x00, ServerRecordsResponsePacket.class);
+        databaseInitializer.getPacketRegistry().registerPacket(PacketDirection.TO_CLIENT, 0x01, ServerRecordResponsePacket.class);
     }
 }
