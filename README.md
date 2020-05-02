@@ -36,7 +36,8 @@ collection.update(new KeyData("nickname", "abc123"), Document.parse("{\"nickname
          final long startTime = System.currentTimeMillis();
          collection.findAsync().setFutureListener((documents) -> {
                     DatabaseDriver.INSTANCE.getLogger().info("Found " + documents.size() + " documents in " + (System.currentTimeMillis() - startTime) + " ms.");
-		  });```
+		  });
+```
 		  
 ### READ DOCUMENT
 ```java
