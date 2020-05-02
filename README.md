@@ -1,6 +1,3 @@
-**Table of Contents**
-
-[TOCM]
 # AlpheratzDatabase
 - An experimental project of database
 
