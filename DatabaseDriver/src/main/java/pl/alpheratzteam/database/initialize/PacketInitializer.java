@@ -16,6 +16,7 @@ public final class PacketInitializer implements Initializer
         driver.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x02, ClientUpdateObjectPacket.class);
         driver.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x03, ClientRecordsRequestPacket.class);
         driver.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x04, ClientRecordRequestPacket.class);
+        driver.getPacketRegistry().registerPacket(PacketDirection.TO_SERVER, 0x05, ClientInsertOrUpdateObjectPacket.class);
 
         driver.getPacketRegistry().registerPacket(PacketDirection.TO_CLIENT, 0x00, ServerRecordsResponsePacket.class);
         driver.getPacketRegistry().registerPacket(PacketDirection.TO_CLIENT, 0x01, ServerRecordResponsePacket.class);

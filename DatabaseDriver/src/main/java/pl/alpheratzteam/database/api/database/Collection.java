@@ -4,10 +4,8 @@ import lombok.Data;
 import pl.alpheratzteam.database.DatabaseDriver;
 import pl.alpheratzteam.database.api.future.AsyncFuture;
 import pl.alpheratzteam.database.api.packet.CallbackPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientInsertObjectPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientRecordRequestPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientRecordsRequestPacket;
-import pl.alpheratzteam.database.communication.packets.client.ClientUpdateObjectPacket;
+import pl.alpheratzteam.database.communication.packets.client.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +45,15 @@ public final class Collection
     public void update(final KeyData keyData, final Document document) {
         database.getClient()
                 .sendPacket(new ClientUpdateObjectPacket(database.getName(), name, keyData.getKey(), keyData.getValue(), document.toString()));
+    }
+
+    public void insertOrUpdate(final Insertable insertable) {
+        this.insertOrUpdate(insertable.getKeyData(), Document.parse(insertable.toJson()));
+    }
+
+    public void insertOrUpdate(final KeyData keyData, final Document document) {
+        database.getClient()
+                .sendPacket(new ClientInsertOrUpdateObjectPacket(database.getName(), name, keyData.getKey(), keyData.getValue(), document.toString()));
     }
 
     public Document find(final KeyData keyData) {

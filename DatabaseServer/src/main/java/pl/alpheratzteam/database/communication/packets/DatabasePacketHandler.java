@@ -52,6 +52,24 @@ public final class DatabasePacketHandler
         database.setNeedUpdate(true);
     }
 
+    public void handlePacket(final ClientInsertOrUpdateObjectPacket packet) {
+        final Database database = DatabaseInitializer.INSTANCE.getDatabaseRegistry()
+                .getDatabase(packet.getDatabaseName());
+
+        final Collection collection = database.getCollection(packet.getCollectionName());
+        final int index = SearchUtil.getPosition(collection, new KeyData(packet.getKey(), packet.getValue()));
+        if (index < 0) {
+            collection.getRecords().add(packet.getJsonObject());
+            database.setNeedUpdate(true);
+          //  DatabaseInitializer.INSTANCE.getLogger().warning("not found object by key: " + packet.getKey() + " -> " + packet.getValue());
+            return;
+        }
+
+        collection.getRecords().remove(index);
+        collection.getRecords().add(packet.getJsonObject());
+        database.setNeedUpdate(true);
+    }
+
     public void handlePacket(final ClientInsertObjectPacket packet) {
         final Database database = DatabaseInitializer.INSTANCE.getDatabaseRegistry()
                 .getDatabase(packet.getDatabaseName());
