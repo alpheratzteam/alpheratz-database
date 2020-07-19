@@ -9,6 +9,7 @@ import pl.alpheratzteam.database.communication.packets.client.*;
 import pl.alpheratzteam.database.communication.packets.server.ServerRecordResponsePacket;
 import pl.alpheratzteam.database.communication.packets.server.ServerRecordsResponsePacket;
 import pl.alpheratzteam.database.utils.SearchUtil;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -32,12 +33,12 @@ public final class DatabasePacketHandler
 
         client.setAuthenticated(packet.getUsername().equals(databaseUser.getUser()) && packet.getPassword().equals(databaseUser.getPassword()));
         if (!client.isAuthenticated()) {
+            database.getLogger().warning("Incorrect authentication data from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
             client.disconnect();
-//            database.getLogger().warning("Incorrect authentication data from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
             return;
         }
 
-//        database.getLogger().fine("Password correct from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
+        database.getLogger().fine("Correct authentication data from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
     }
 
     public void handlePacket(final ClientUpdateObjectPacket packet) {
