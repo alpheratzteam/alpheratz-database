@@ -31,9 +31,13 @@ public final class DatabasePacketHandler
                 .getData().getDatabaseUser();
 
         client.setAuthenticated(packet.getUsername().equals(databaseUser.getUser()) && packet.getPassword().equals(databaseUser.getPassword()));
-        client.disconnect();
+        if (!client.isAuthenticated()) {
+            client.disconnect();
+//            database.getLogger().warning("Incorrect authentication data from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
+            return;
+        }
 
-        database.getLogger().warning("Incorrect authentication data from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
+//        database.getLogger().fine("Password correct from " + ((InetSocketAddress) client.getChannel().remoteAddress()).getAddress().getHostAddress());
     }
 
     public void handlePacket(final ClientUpdateObjectPacket packet) {

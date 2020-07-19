@@ -3,10 +3,10 @@
   "port": 2139,
   "authentication":
   {
-    "enabled": false,
+    "enabled": true,
     "data": {
       "user": "root",
-      "password": "none"
+      "password": "magia123"
     }
   }
 }

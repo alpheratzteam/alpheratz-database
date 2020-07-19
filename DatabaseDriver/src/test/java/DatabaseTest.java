@@ -12,7 +12,7 @@ import java.util.stream.IntStream;
 public final class DatabaseTest
 {
     public static void main(final String... args) {
-        DatabaseDriver.INSTANCE.connect(new DatabaseClient(new DatabaseData("localhost", 2139, new DatabaseUser("root", "none"))), new ConnectCallback() {
+        DatabaseDriver.INSTANCE.connect(new DatabaseClient(new DatabaseData("localhost", 2139, new DatabaseUser("root", "magia123"))), new ConnectCallback() {
             @Override
             public void success(DatabaseClient databaseClient) {
                 System.out.println("Connected!");
